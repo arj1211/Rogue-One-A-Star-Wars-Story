@@ -49,6 +49,8 @@ int main( int argc, char** argv ) {
     if (result==-1)
     {
         printf("Couldn't get address info for %s:%s\n", argv[1],PORT);
+        free(buf.data);
+        freeaddrinfo(res);
         return -1;
     }
     /* Grab internet address in struct */
@@ -58,6 +60,9 @@ int main( int argc, char** argv ) {
     if (s==-1)
     {
         printf("Couldn't create socket\n");
+        close(s);
+        free(buf.data);
+        freeaddrinfo(res);
         return -1;
     }
     /* connect up, error check */
@@ -65,6 +70,9 @@ int main( int argc, char** argv ) {
     if(connection_status==-1)
     {
         printf("Couldn't connect to socket\n");
+        close(s);
+        free(buf.data);
+        freeaddrinfo(res);
         return -1;
     }
     /* send the deathstar plans, error check */
@@ -72,6 +80,9 @@ int main( int argc, char** argv ) {
     if (send_status==-1)
     {
         printf("Error sending deathstar\n");
+        close(s);
+        free(buf.data);
+        freeaddrinfo(res);
         return -1;
     }
     /* recv feedback, error check */
@@ -80,11 +91,19 @@ int main( int argc, char** argv ) {
     if (buff_bytes==-1)
     {
         printf("Error getting response\n");
+        free(feedback);
+        close(s);
+        free(buf.data);
+        freeaddrinfo(res);
         return -1;
     }
     if (buff_bytes==0)
     {
         printf("%s closed the connection\n", argv[1]);
+        free(feedback);
+        close(s);
+        free(buf.data);
+        freeaddrinfo(res);
         return -1;
     }
     for (int i = 0; i < buff_bytes; i++)
